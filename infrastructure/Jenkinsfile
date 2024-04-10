@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
+        GITHUB_TOKEN = credentials("github_token")
     }
 
     stages {
@@ -23,12 +24,13 @@ pipeline {
                 sh "git tag ${env.IMAGE_TAG}"
                 sh "git push https://$GITHUB_TOKEN@github.com/<username>/service.git ${env.IMAGE_TAG}"
             }
-}
         }
-    }
 
-     environment {
-        DOCKER_PASSWORD = credentials("docker_password")
-        GITHUB_TOKEN = credentials("github_token")
+        stage('run image') {
+            steps {
+                sh "IMAGE_TAG=${env.IMAGE_TAG} docker compose up -d hello mongo"
+            }
+        }
+        }
     }
 }
